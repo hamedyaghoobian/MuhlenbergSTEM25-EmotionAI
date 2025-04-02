@@ -70,6 +70,7 @@ Students will:
    - Encourage them to check the "How Capture Works" explanation
    - Have them try different expressions and angles
    - Point out the counter showing how many images they've captured
+   - **Important**: Emphasize the need for at least 5 varied images per emotion
 
 2. **Model Training (7 minutes)**
    - Introduce the parameter controls and what each one does:
@@ -94,6 +95,32 @@ Students will:
   - What strategies improved accuracy
   - Real-world applications of this technology
   - Ethical considerations
+
+## Small Dataset Optimizations
+
+The application has been specially optimized to work with small datasets collected during the workshop:
+
+### Technical Optimizations
+- **Enhanced data augmentation**: Creates more variations from each training image
+- **Regularization**: Prevents overfitting to the small training set
+- **Early stopping**: Automatically stops training when performance stops improving
+- **Smaller batch size**: Better suited for small datasets
+- **Input validation**: Ensures students have at least 3 images per emotion
+
+### Teaching Tips
+- Remind students that professional AI systems use thousands or millions of images
+- Explain that the app uses "transfer learning" to work with limited data
+- If students are getting poor results, suggest:
+  - Taking more varied photos (different angles, expressions)
+  - Making more exaggerated expressions
+  - Ensuring even lighting on their face
+  - Using the "Reset Everything" button to start fresh
+
+### Common Issues
+- **"Insufficient Data" error**: Make sure students capture at least 3 images for each emotion
+- **One emotion dominates predictions**: This indicates an imbalanced training set
+- **Low accuracy**: This is normal with small datasets - focus on the learning process
+- **Slow training**: This is expected due to the optimizations for small datasets
 
 ## New Interactive Features to Highlight
 

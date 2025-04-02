@@ -40,6 +40,27 @@ In this activity, you will build an AI system that can recognize facial expressi
 - What happened when you tried unusual expressions?
 - How could you improve your model's performance?
 
+## Tips for Working with Small Datasets
+
+Since we only have time to collect a small number of images during this workshop, here are some strategies to get the best results:
+
+### Collecting Better Training Data
+1. **Variety is key**: Capture images with different angles, expressions, and lighting
+2. **Clear expressions**: Make very distinct facial expressions for each emotion
+3. **Balanced dataset**: Try to capture a similar number of images for each emotion
+4. **Quality over quantity**: A few clear, varied images are better than many similar ones
+
+### Optimizing Training Parameters
+1. **Always use data augmentation**: This creates additional training samples from your images
+2. **Start with 10 epochs**: This is usually enough for small datasets
+3. **Learning rate of 0.0001**: This slower rate helps prevent overfitting
+4. **Be patient**: With small datasets, accuracy might not be extremely high
+
+### Improving Results
+1. **Add more training data**: If your model struggles with a particular emotion, add more images
+2. **Try different expressions**: If "Sad" is confused with "Neutral," try more pronounced expressions
+3. **Restart if needed**: Use the "Reset Everything" button if results are poor and start over
+
 ## Practice Activities
 
 ### Basic: Build Your Emotion Recognizer

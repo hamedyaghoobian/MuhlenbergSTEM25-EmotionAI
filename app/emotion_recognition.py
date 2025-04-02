@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras.models import Sequential, load_model
-from tensorflow.keras.layers import Dense, Dropout, Flatten, Conv2D, MaxPooling2D
+from tensorflow.keras.layers import Dense, Dropout, Flatten, Conv2D, MaxPooling2D, GlobalAveragePooling2D
 from tensorflow.keras.applications import MobileNetV2
 from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
@@ -14,6 +14,7 @@ from PIL import Image, ImageTk
 import threading
 import time
 import matplotlib.pyplot as plt
+import traceback
 
 class EmotionRecognitionApp:
     def __init__(self, root):
@@ -268,110 +269,158 @@ class EmotionRecognitionApp:
         thread.daemon = True
         thread.start()
     
+    class ProgressCallback(tf.keras.callbacks.Callback):
+        """Callback for updating the progress bar during training."""
+        def __init__(self, app):
+            super().__init__()
+            self.app = app
+        
+        def on_epoch_end(self, epoch, logs=None):
+            # Calculate progress
+            if self.params.get('epochs'):
+                progress_value = int((epoch + 1) / self.params['epochs'] * 100)
+            else:
+                progress_value = 0
+                
+            # Get metrics
+            acc = logs.get('accuracy', 0) * 100
+            val_acc = logs.get('val_accuracy', 0) * 100
+            
+            # Update UI from main thread
+            self.app.root.after(0, lambda: self.app.update_progress(
+                progress_value, 
+                f"Epoch {epoch+1}/{self.params['epochs']} - accuracy: {acc:.1f}% - val_accuracy: {val_acc:.1f}%"))
+    
     def _train_model_thread(self):
+        """Train the model in a separate thread."""
         try:
-            # Get parameter values
+            # Get parameters from UI
             epochs = self.epoch_var.get()
             learning_rate = self.lr_var.get()
             use_augmentation = self.aug_var.get()
             
-            # Update status to show selected parameters
-            self.root.after(0, lambda: self.status_bar.config(
-                text=f"Training with: Epochs={epochs}, LR={learning_rate}, Augmentation={'ON' if use_augmentation else 'OFF'}"))
+            # Update status
+            self.status_bar.config(text=f"Training with {epochs} epochs, learning rate {learning_rate}, data augmentation: {use_augmentation}")
             
-            # Create data generator for data augmentation
-            train_datagen = ImageDataGenerator(
-                rescale=1./255,
-                rotation_range=20 if use_augmentation else 0,
-                width_shift_range=0.2 if use_augmentation else 0,
-                height_shift_range=0.2 if use_augmentation else 0,
-                shear_range=0.2 if use_augmentation else 0,
-                zoom_range=0.2 if use_augmentation else 0,
-                horizontal_flip=use_augmentation,
-                fill_mode='nearest',
-                validation_split=0.2  # 20% for validation
-            )
+            # Set up data augmentation
+            if use_augmentation:
+                # More aggressive data augmentation for small datasets
+                train_datagen = ImageDataGenerator(
+                    rescale=1./255,
+                    rotation_range=30,  # Increased rotation range
+                    width_shift_range=0.2,  # Increased shift range
+                    height_shift_range=0.2,  # Increased shift range
+                    shear_range=0.2,  # Increased shear range
+                    zoom_range=0.3,  # More aggressive zoom
+                    horizontal_flip=True,
+                    brightness_range=[0.7, 1.3],  # Add brightness variation
+                    fill_mode='nearest',
+                    validation_split=0.2  # 20% validation split
+                )
+            else:
+                train_datagen = ImageDataGenerator(
+                    rescale=1./255,
+                    validation_split=0.2
+                )
             
-            # Load training data
+            # Check that we have data for all emotions
+            empty_classes = []
+            for emotion in self.emotions:
+                emotion_dir = os.path.join(self.data_dir, emotion)
+                if not os.path.exists(emotion_dir) or len(os.listdir(emotion_dir)) < 3:
+                    empty_classes.append(emotion)
+            
+            if empty_classes:
+                self.root.after(0, lambda: messagebox.showerror(
+                    "Insufficient Data", 
+                    f"Not enough images for: {', '.join(empty_classes)}.\nCapture at least 3 images for each emotion."
+                ))
+                self.train_btn.config(state=tk.NORMAL)
+                self.progress['value'] = 0
+                self.is_training = False
+                return
+            
+            # Create data generators
             train_generator = train_datagen.flow_from_directory(
                 self.data_dir,
                 target_size=(224, 224),
-                batch_size=32,
+                batch_size=8,  # Smaller batch size for small datasets
                 class_mode='categorical',
                 subset='training'
             )
             
-            # Load validation data
             validation_generator = train_datagen.flow_from_directory(
                 self.data_dir,
                 target_size=(224, 224),
-                batch_size=32,
+                batch_size=8,  # Smaller batch size for small datasets
                 class_mode='categorical',
                 subset='validation'
             )
             
-            # Create model using transfer learning with MobileNetV2
-            base_model = MobileNetV2(weights='imagenet', include_top=False, input_shape=(224, 224, 3))
+            # Set up model
+            base_model = MobileNetV2(
+                input_shape=(224, 224, 3),
+                include_top=False,
+                weights='imagenet'
+            )
             
             # Freeze base model layers
-            for layer in base_model.layers:
-                layer.trainable = False
+            base_model.trainable = False
             
-            # Create new model on top
-            self.model = Sequential([
+            # Create model with regularization
+            model = Sequential([
                 base_model,
-                Conv2D(32, (3, 3), activation='relu'),
-                MaxPooling2D(pool_size=(2, 2)),
-                Flatten(),
-                Dense(128, activation='relu'),
+                GlobalAveragePooling2D(),
+                Dense(128, activation='relu', kernel_regularizer=tf.keras.regularizers.l2(0.001)),
+                Dropout(0.6),  # Increased dropout for better generalization
+                Dense(64, activation='relu', kernel_regularizer=tf.keras.regularizers.l2(0.001)),
                 Dropout(0.5),
                 Dense(len(self.emotions), activation='softmax')
             ])
             
-            # Compile model with the selected learning rate
-            self.model.compile(
-                optimizer=Adam(learning_rate=learning_rate),
+            # Callbacks for better training
+            callbacks = [
+                tf.keras.callbacks.EarlyStopping(
+                    monitor='val_loss',
+                    patience=5,
+                    restore_best_weights=True
+                ),
+                self.ProgressCallback(self)
+            ]
+            
+            # Compile model with specified learning rate
+            optimizer = Adam(learning_rate=learning_rate)
+            model.compile(
+                optimizer=optimizer,
                 loss='categorical_crossentropy',
                 metrics=['accuracy']
             )
             
-            # Progress callback
-            class ProgressCallback(tf.keras.callbacks.Callback):
-                def __init__(self, app):
-                    super().__init__()
-                    self.app = app
-                
-                def on_epoch_end(self, epoch, logs=None):
-                    progress_value = int((epoch + 1) / epochs * 100)
-                    acc = logs.get('accuracy', 0) * 100
-                    val_acc = logs.get('val_accuracy', 0) * 100
-                    
-                    # Update UI from main thread
-                    self.app.root.after(0, lambda: self.app.update_progress(
-                        progress_value, 
-                        f"Training: epoch {epoch+1}/{epochs} - accuracy: {acc:.1f}% - val_accuracy: {val_acc:.1f}%"))
-            
-            # Train model with the specified number of epochs
-            history = self.model.fit(
+            # Train model
+            history = model.fit(
                 train_generator,
-                steps_per_epoch=train_generator.samples // train_generator.batch_size,
-                validation_data=validation_generator,
-                validation_steps=validation_generator.samples // validation_generator.batch_size,
                 epochs=epochs,
-                callbacks=[ProgressCallback(self)]
+                validation_data=validation_generator,
+                callbacks=callbacks
             )
             
             # Save model
-            os.makedirs(self.models_dir, exist_ok=True)
             model_path = os.path.join(self.models_dir, "emotion_model.h5")
-            self.model.save(model_path)
+            model.save(model_path)
             
-            # Update UI from main thread
-            self.root.after(0, lambda: self.training_complete(history))
+            # Store the trained model
+            self.model = model
+            
+            # Show training results
+            self.training_complete(history)
             
         except Exception as e:
-            # Handle exceptions
-            self.root.after(0, lambda: self.training_error(str(e)))
+            print(f"Error in training: {str(e)}")
+            traceback.print_exc()
+            self.root.after(0, lambda: self.status_bar.config(text="Training failed!"))
+            self.root.after(0, lambda: messagebox.showerror("Training Error", f"Error training model: {str(e)}"))
+            self.root.after(0, lambda: self.train_btn.config(state=tk.NORMAL))
+            self.is_training = False
     
     def update_progress(self, value, status_text):
         self.progress['value'] = value
