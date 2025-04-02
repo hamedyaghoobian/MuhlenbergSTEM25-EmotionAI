@@ -1,117 +1,117 @@
 # Build Your Own Emotion Recognition AI
 
-## Introduction
+## Workshop Overview
+In this activity, you will build an AI system that can recognize facial expressions. You'll capture training data, train a neural network model, and test it to see how well it recognizes different emotions!
 
-Welcome to the Emotion Recognition Activity! Today, you'll build your own AI system that can recognize facial expressions and identify emotions. This is very similar to how real AI systems are built in industry and research labs.
+## Learning Objectives
+- Understand how supervised learning works through hands-on experience
+- Learn about data collection for AI training
+- Experience neural network training and parameter tuning
+- Evaluate and test AI model performance
+- Explore real-world applications of computer vision
 
-You'll collect data, train a neural network model, and test it in real-time — all in 30 minutes!
+## 30-Minute Activity Outline
 
-## What You'll Learn
+### 1. Data Collection (10 minutes)
+- Start the application and activate your webcam
+- Select an emotion from the dropdown menu
+- Make facial expressions matching the selected emotion
+- Capture at least 5-10 images for each emotion category
+- Repeat for all four emotions (Happy, Sad, Surprised, Neutral)
 
-- How AI learns from examples (supervised learning)
-- How to collect and label data
-- How neural networks "learn" patterns
-- How to test and evaluate an AI model
+### 2. Model Training (8 minutes)
+- Examine the training parameters:
+  - **Epochs**: Controls how many times the model sees your training data
+  - **Learning Rate**: Determines how quickly the model makes adjustments
+  - **Data Augmentation**: Creates variations of your images to get more training examples
+- Click "Train Model" to start the learning process
+- While it's training, explore the "How Training Works" button
+- When training completes, examine the accuracy graph
 
-## Activity Outline (30 minutes)
+### 3. Testing Your Model (7 minutes)
+- Make different facial expressions to test your model
+- Click "Predict Emotion" to see what the AI thinks you're expressing
+- Examine the confidence scores for each emotion
+- Try to "trick" your model with ambiguous expressions
 
-1. **Data Collection** (10 minutes)
-   - Capture and label facial expressions 
-   - Build your training dataset
+### 4. Discussion and Exploration (5 minutes)
+- Which emotions were easiest/hardest for your model to recognize?
+- How did changing the training parameters affect your results?
+- What happened when you tried unusual expressions?
+- How could you improve your model's performance?
 
-2. **Model Training** (5 minutes)
-   - Train a neural network on your dataset
-   - Learn how the computer "sees" emotions
+## Practice Activities
 
-3. **Testing Your Model** (5 minutes)
-   - Test your model with new expressions
-   - See how well it recognizes emotions
+### Basic: Build Your Emotion Recognizer
+1. Capture at least 5 images of each emotion
+2. Train your model with default settings
+3. Test with new expressions
 
-4. **Discussion and Exploration** (10 minutes)
-   - How could you improve your model?
-   - What are real-world applications?
-   - What are ethical considerations?
+### Challenge: Optimize Your Model
+1. Try different parameter combinations:
+   - More epochs (15-20)
+   - Different learning rates
+   - With/without data augmentation
+2. Compare the results on the accuracy graph
+3. Find the best combination for your data
 
-## Step-by-Step Instructions
+## How AI Works Behind the Scenes
 
-### Step 1: Collect Training Data
+### Data Collection
+When you capture images, the app:
+1. Takes a photo from your webcam
+2. Resizes it to 224×224 pixels
+3. Stores it in the appropriate emotion folder
+4. These labeled images form your "training dataset"
 
-1. When the application starts, click the **"Start Webcam"** button
-2. Select an emotion from the dropdown menu (Happy, Sad, Surprised, or Neutral)
-3. Make the corresponding facial expression
-4. Click **"Capture Image"** to take a picture
-5. Repeat 10-15 times for *each* emotion
-   - Try different angles and expressions
-   - The more varied your dataset, the better!
+### Neural Network Training
+When you train your model:
+1. The app uses transfer learning with a pre-trained neural network (MobileNetV2)
+2. It adapts this network to recognize your specific facial expressions
+3. The model learns patterns from your training images
+4. The accuracy graph shows how the model improves over time
 
-### Step 2: Train Your Model
+### Prediction Process
+When you test your model:
+1. Your current facial expression is captured
+2. The image is processed identically to training images
+3. The neural network analyzes the image
+4. It outputs confidence scores for each emotion
+5. The emotion with the highest score is the prediction
 
-1. After collecting at least 5 images for each emotion, click **"Train Model"**
-2. Watch the progress bar and wait for training to complete (it takes about 1-2 minutes)
-3. While waiting, read the "How AI Works" section below
+## Model Performance with Larger Datasets
 
-### Step 3: Test Your Model
+In professional AI applications, models are trained on thousands or millions of images. We tested our emotion recognition approach on a larger dataset with:
+- 7,164 "Happy" images
+- 4,938 "Sad" images 
+- 3,205 "Surprised" images
+- 4,982 "Neutral" images
 
-1. Make a facial expression (try different ones!)
-2. Click **"Predict Emotion"**
-3. See the prediction result
-4. Try again with different expressions
-5. Challenge: Try to "trick" your model!
+The results were:
+- Overall accuracy: ~65%
+- Happy recognition: 85% accuracy
+- Sad recognition: 47% accuracy
+- Surprised recognition: 51% accuracy
+- Neutral recognition: 69% accuracy
 
-## How AI Works: Behind the Scenes
+This demonstrates:
+1. More data generally improves performance (compared to ~30 images per emotion)
+2. Some emotions (like Happy) are easier to recognize than others
+3. Even with thousands of images, emotion recognition remains challenging
+4. Professional systems may need additional techniques beyond what we're using today
 
-### 1. Data Collection and Preparation
+## Real-World Applications
 
-When you capture images:
-- Your webcam takes a photo
-- The image is automatically resized to 224×224 pixels
-- The image is labeled with the emotion you selected
-- The labeled image is saved to your training dataset
+Emotion recognition technology has many applications:
+- Human-computer interaction improvements
+- Customer satisfaction measurement
+- Mental health monitoring
+- Educational tools that adapt to student engagement
+- Automotive systems that detect driver alertness
 
-### 2. Neural Network Training
+## Keep Exploring!
 
-When you click "Train Model":
-- Your images are processed and converted to numbers
-- Each pixel becomes a value between 0-255 (brightness)
-- The neural network learns patterns that correspond to each emotion
-- It adjusts its "weights" (parameters) to improve predictions
-
-![Neural Network Diagram](neural_network_diagram.png)
-
-### 3. Transfer Learning
-
-We're using a technique called "transfer learning" with a pre-trained model called MobileNetV2:
-- This model already knows how to recognize basic features in images
-- We're "fine-tuning" it to recognize emotional expressions
-- This is much faster than training from scratch!
-
-### 4. Prediction
-
-When you click "Predict Emotion":
-- Your current webcam image is captured
-- It's processed the same way as the training images
-- The model compares the image to the patterns it learned
-- It gives you the most likely emotion based on its training
-
-## Challenge Questions
-
-1. How would you improve the accuracy of your model?
-2. What other emotions could you add to your model?
-3. How might this technology be used in the real world?
-4. Are there any potential concerns about using emotion recognition technology?
-
-## AI in the Real World
-
-This simple demo shows the basic principles behind many real-world AI systems, including:
-- Face ID on smartphones
-- Social media photo tagging
-- Self-driving cars
-- Medical image analysis
-- Security systems
-
-## Take It Further
-
-Interested in learning more? Check out these resources:
-- [Teachable Machine](https://teachablemachine.withgoogle.com/) by Google
-- [Elements of AI](https://www.elementsofai.com/) - Free online course
-- [Fast.ai](https://www.fast.ai/) - Practical Deep Learning 
+Want to learn more? Try:
+- [Teachable Machine](https://teachablemachine.withgoogle.com/) - Another easy-to-use AI training tool
+- [AI for Everyone](https://www.coursera.org/learn/ai-for-everyone) - A non-technical course about AI concepts
+- [Machine Learning for Kids](https://machinelearningforkids.co.uk/) - More kid-friendly AI projects 

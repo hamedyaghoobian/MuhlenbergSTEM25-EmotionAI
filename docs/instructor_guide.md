@@ -2,14 +2,15 @@
 
 ## Overview
 
-This guide will help you prepare and facilitate the Emotion Recognition AI activity for your STEM day event. The activity is designed to introduce high school students to the concepts of AI, machine learning, and computer vision through a hands-on experience.
+This guide will help you prepare and facilitate the enhanced Emotion Recognition AI activity for your STEM day event. The application now includes interactive explanations, parameter controls, and visualizations to help students understand what's happening "under the hood" during the AI development process.
 
 ## Activity Goals
 
 Students will:
 - Understand the basic workflow of AI development
 - Collect and label their own training data
-- Train a simple neural network model
+- Experiment with different model training parameters
+- Visualize and interpret model training results
 - Test the model with new inputs
 - Discuss applications and implications of AI
 
@@ -19,9 +20,9 @@ Students will:
 
 - [ ] Set up and test the software on all 4 computers
 - [ ] Ensure all computers have working webcams
-- [ ] Run through the complete activity on each computer
+- [ ] Run through the complete activity including the new parameter controls
 - [ ] Print student handouts (one per student)
-- [ ] Generate the neural network diagram by running `python app/create_diagram.py`
+- [ ] Review the explanation dialogs so you can expand on these concepts
 
 ### Supplies Needed
 
@@ -56,47 +57,80 @@ Students will:
 ### Introduction (5 minutes)
 - Welcome students and organize them into groups (1-2 students per computer)
 - Give a brief overview of the activity and its connection to AI
+- Highlight the new interactive features:
+  - The "How it Works" explanation buttons
+  - The parameter controls for experimentation
+  - The visualization windows for predictions and training
 - Distribute the handouts
 
 ### Guided Activity (20 minutes)
-1. **Data Collection (10 minutes)**
+1. **Data Collection (8 minutes)**
    - Help students start the application and activate the webcam
    - Guide them through capturing images for each emotion
-   - Encourage them to capture varied expressions
+   - Encourage them to check the "How Capture Works" explanation
+   - Have them try different expressions and angles
+   - Point out the counter showing how many images they've captured
 
-2. **Model Training (5 minutes)**
-   - While the model trains, explain the concept of neural networks
-   - Use the diagram to illustrate how the model processes images
-   - Point out the progress bar and explain what's happening
+2. **Model Training (7 minutes)**
+   - Introduce the parameter controls and what each one does:
+     - **Epochs**: Number of training cycles (more = longer training)
+     - **Learning Rate**: Size of adjustments (smaller = more precise)
+     - **Data Augmentation**: Creating variations of their images
+   - Have students try different parameter combinations (if time allows)
+   - While the model trains, point out the progress bar showing accuracy
+   - When training completes, discuss the accuracy graph
+   - Have students observe differences between groups using different parameters
 
 3. **Testing (5 minutes)**
    - Let students test their models with new expressions
-   - Encourage them to try "tricking" the model
-   - Have them observe differences between groups' results
+   - Encourage them to examine the detailed prediction breakdown
+   - Have them try the challenge activities like confusing the model
+   - Compare results between groups
 
 ### Discussion (5 minutes)
 - Lead a brief discussion on:
-  - How their models performed
-  - Ways to improve accuracy
+  - How different parameters affected model performance
+  - Which emotions were easiest/hardest to recognize
+  - What strategies improved accuracy
   - Real-world applications of this technology
   - Ethical considerations
 
+## New Interactive Features to Highlight
+
+### Explanation Buttons
+- **How Capture Works**: Explains image preprocessing and storage
+- **How Training Works**: Details the training process and parameters
+- **How Prediction Works**: Shows how the model makes decisions
+
+### Parameter Controls
+- Encourage students to experiment with these values
+- Discuss the tradeoffs of different settings:
+  - More epochs: Better accuracy but risk of overfitting
+  - Higher learning rate: Faster training but may miss optimal values
+  - Data augmentation: More training variety from fewer real examples
+
+### Visualization Windows
+- **Training Results**: Shows accuracy over time with explanation
+- **Prediction Details**: Shows confidence scores for each emotion
+
 ## Facilitating Tips
 
-- **Technical Support:** Be prepared to help with webcam issues or software problems
-- **Engagement:** Ask questions throughout to keep students engaged
-- **Time Management:** Keep an eye on the clock - data collection often takes longer than expected
-- **Differentiation:** For advanced students, discuss more complex aspects like overfitting, data augmentation
+- **Guided Experimentation:** Suggest specific parameter combinations for students to try
+- **Comparisons:** Have groups compare results using different settings
+- **Visual Learning:** Use the explanations and visualizations to reinforce concepts
+- **Timeboxing:** The data collection phase often runs long - keep groups moving
+- **Differentiation:** For advanced students, ask deeper questions about the visualization results
 
 ## Discussion Questions
 
-Here are some questions to stimulate discussion:
+Here are some enhanced questions to stimulate discussion:
 
-1. Why did your model make certain mistakes? How could you fix them?
-2. How did the amount of training data affect your model's performance?
-3. What other applications could use similar technology?
-4. What privacy concerns might arise with emotion recognition technology?
-5. How could bias affect these kinds of AI systems?
+1. How did different parameter settings affect your model's performance?
+2. What patterns did you notice in the prediction confidence scores?
+3. When would a higher or lower learning rate be beneficial?
+4. Why might a model perform well on training data but poorly on new inputs?
+5. What privacy or ethical concerns might arise with emotion recognition technology?
+6. How could you collect better training data to improve your model?
 
 ## Follow-up Resources
 
@@ -122,4 +156,18 @@ If students ask more advanced questions:
 - **Transfer Learning:** We're using MobileNetV2 as a base model. It was pre-trained on ImageNet (a dataset of 1M+ images) and we're adapting it for emotion recognition.
 - **CNN Architecture:** Convolutional Neural Networks use filters to detect features like edges, textures, and patterns in images.
 - **Overfitting:** If a model performs well on training data but poorly on new data, it has "memorized" rather than "learned" general patterns.
-- **Data Augmentation:** We artificially expand our dataset by applying transformations (rotation, zoom, etc.) to our original images. 
+- **Data Augmentation:** We artificially expand our dataset by applying transformations (rotation, zoom, etc.) to our original images.
+
+## Technical Background for Advanced Questions
+
+If students ask more advanced questions about the visualizations:
+
+- **Training Graph**: The gap between training and validation accuracy indicates potential overfitting
+- **Prediction Confidence**: Low confidence across all emotions may indicate poor feature extraction
+- **Parameter Selection**: 
+  - Epochs: More isn't always better (diminishing returns, overfitting)
+  - Learning rate: Too high can cause overshooting, too low can get stuck in local minima
+  - Data augmentation: Helps with small datasets but introduces artificial patterns
+
+- **MobileNetV2 Architecture**: Uses depthwise separable convolutions for efficiency
+- **Transfer Learning**: Only fine-tuning the top layers leverages pretrained feature extraction 
