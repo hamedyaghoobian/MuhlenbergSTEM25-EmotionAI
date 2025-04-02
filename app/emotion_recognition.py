@@ -21,6 +21,13 @@ class EmotionRecognitionApp:
         self.root.title("Emotion Recognition - STEM Day")
         self.root.geometry("1200x700")
         
+        # Create accent style for important buttons
+        style = ttk.Style()
+        style.configure("Accent.TButton", 
+                        background="#ff5252", 
+                        foreground="white", 
+                        font=('Arial', 10, 'bold'))
+        
         # Emotion classes
         self.emotions = ["Happy", "Sad", "Surprised", "Neutral"]
         
@@ -66,6 +73,11 @@ class EmotionRecognitionApp:
         
         self.start_webcam_btn = ttk.Button(self.webcam_control_frame, text="Start Webcam", command=self.toggle_webcam)
         self.start_webcam_btn.pack(side=tk.LEFT, padx=5)
+        
+        # Add reset button
+        self.reset_btn = ttk.Button(self.webcam_control_frame, text="Reset Everything", command=self.reset_application)
+        self.reset_btn.pack(side=tk.RIGHT, padx=5)
+        self.reset_btn.configure(style="Accent.TButton")
         
         # Emotion selection and capture
         self.emotion_frame = ttk.LabelFrame(self.right_frame, text="Capture Training Images", padding=10)
@@ -629,6 +641,46 @@ How Emotion Prediction Works:
         # Add close button
         close_btn = ttk.Button(explanation_window, text="Close", command=explanation_window.destroy)
         close_btn.pack(pady=10)
+
+    def reset_application(self):
+        """Reset the application by clearing all training data and model."""
+        if messagebox.askyesno("Reset Application", 
+                               "This will delete all your training images and reset the application.\n\nAre you sure?"):
+            try:
+                # Delete all captured images
+                for emotion in self.emotions:
+                    emotion_dir = os.path.join(self.data_dir, emotion)
+                    if os.path.exists(emotion_dir):
+                        for file in os.listdir(emotion_dir):
+                            if file.endswith(".jpg"):
+                                os.remove(os.path.join(emotion_dir, file))
+                
+                # Delete trained model
+                model_path = os.path.join(self.models_dir, "emotion_model.h5")
+                if os.path.exists(model_path):
+                    os.remove(model_path)
+                
+                # Reset counters
+                self.capture_counts = {emotion: 0 for emotion in self.emotions}
+                for emotion in self.emotions:
+                    self.count_labels[emotion].config(text="0 images")
+                
+                # Reset model
+                self.model = None
+                
+                # Reset result
+                self.result_label.config(text="Result: None")
+                
+                # Reset progress bar
+                self.progress['value'] = 0
+                
+                # Update status
+                self.status_bar.config(text="Reset complete! Ready for a fresh start.")
+                
+                messagebox.showinfo("Reset Complete", "All training data and model have been cleared.\nThe application is ready for a fresh start.")
+            
+            except Exception as e:
+                messagebox.showerror("Error", f"Error resetting application: {str(e)}")
 
 def main():
     print("Starting Emotion Recognition Application...")
